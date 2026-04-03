@@ -1024,8 +1024,45 @@
 
 <!-- ── Site Footer ── -->
 <footer style="border-top:1px solid var(--border);background:var(--bg);padding:0.875rem 2rem;text-align:center;font-size:0.65rem;color:var(--muted);letter-spacing:0.04em;position:sticky;bottom:0;z-index:50;">
-  This quoting tool is managed and built by Ray White &mdash; ray.white [at] altronic-llc.com &nbsp;|&nbsp; <strong>REV0</strong>
+  This quoting tool is managed and built by Ray White &mdash; ray.white [at] altronic-llc.com &nbsp;|&nbsp; <button onclick="openRevHistory()" style="background:none;border:none;cursor:pointer;font-family:inherit;font-size:inherit;font-weight:700;color:var(--text);letter-spacing:0.04em;padding:0;text-decoration:underline;text-underline-offset:2px;">REV1</button>
 </footer>
+
+<!-- ── Rev History Modal ── -->
+<div id="revModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:2000;display:none;align-items:center;justify-content:center;padding:1rem;">
+  <div style="background:#fff;border:2px solid #111;border-radius:4px;padding:2rem;max-width:480px;width:100%;max-height:80vh;overflow-y:auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #111;padding-bottom:1rem;margin-bottom:1.25rem">
+      <div style="font-family:'Space Mono',monospace;font-size:1rem;font-weight:700;letter-spacing:0.04em">Revision History</div>
+      <button onclick="closeRevHistory()" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:#888;line-height:1">✕</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      <div style="border-left:3px solid #111;padding-left:1rem;">
+        <div style="font-family:'Space Mono',monospace;font-size:0.8rem;font-weight:700">REV1 — Current</div>
+        <div style="font-size:0.7rem;color:#888;margin-top:0.25rem;margin-bottom:0.5rem">April 2026</div>
+        <ul style="font-size:0.75rem;line-height:1.7;color:#444;padding-left:1.1rem;margin:0">
+          <li>Widened snap/PDF canvas for better layout</li>
+          <li>Fixed qty break table column sizing in PDF &amp; share image</li>
+          <li>Swapped to new Altronic "A" icon — no invert filter needed</li>
+          <li>Removed "Parts Price Calculator" label from PDF/image header</li>
+          <li>Widened customer email field in quote modal</li>
+          <li>Added revision history popup</li>
+        </ul>
+      </div>
+      <div style="border-left:3px solid #d0d0d0;padding-left:1rem;">
+        <div style="font-family:'Space Mono',monospace;font-size:0.8rem;font-weight:700;color:#888">REV0 — Initial Release</div>
+        <div style="font-size:0.7rem;color:#aaa;margin-top:0.25rem;margin-bottom:0.5rem">April 2026</div>
+        <ul style="font-size:0.75rem;line-height:1.7;color:#888;padding-left:1.1rem;margin:0">
+          <li>Part pricing calculator with GM, sell price &amp; user price</li>
+          <li>Qty break pricing with up to 3 tiers</li>
+          <li>GM range visualizer</li>
+          <li>Manual price → GM check</li>
+          <li>Saved parts with CSV export</li>
+          <li>Customer quote generation with PDF download</li>
+          <li>Share image via native share sheet</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -1547,7 +1584,7 @@
     const partNum = $('partNum').value.trim() || '';
     const partDesc = $('partDesc').value.trim() || '';
     const snap = document.createElement('div');
-    snap.style.cssText = 'width:680px;padding:40px;background:#fff;font-family:Space Mono,monospace;color:#111;box-sizing:border-box';
+    snap.style.cssText = 'width:760px;padding:40px;background:#fff;font-family:Space Mono,monospace;color:#111;box-sizing:border-box';
 
     const logoImg = document.querySelector('.brand img');
     const logoSrc = logoImg ? logoImg.src : '';
@@ -1602,14 +1639,14 @@
       if (qbTable) {
         snap.innerHTML += `
           <div style="font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#888;border-top:1px solid #ddd;padding-top:8px;margin-bottom:10px;margin-top:20px">Quantity Break Pricing</div>
-          <table style="width:100%;border-collapse:collapse;margin-bottom:12px">
+          <table style="width:100%;border-collapse:collapse;margin-bottom:12px;table-layout:fixed">
             <thead>
               <tr style="border-bottom:2px solid #111;background:#f4f4f4">
-                <th style="padding:6px 10px;text-align:left;font-size:8px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#888">Qty Range</th>
-                <th style="padding:6px 10px;text-align:left;font-size:8px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#888">Sell Price</th>
-                <th style="padding:6px 10px;text-align:left;font-size:8px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#888">User Price</th>
-                <th style="padding:6px 10px;text-align:left;font-size:8px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#888">GM %</th>
-                <th style="padding:6px 10px;text-align:left;font-size:8px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#888">Gross Profit</th>
+                <th style="padding:7px 12px;text-align:left;font-size:8px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#888;width:22%">Qty Range</th>
+                <th style="padding:7px 12px;text-align:left;font-size:8px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#888;width:26%">Sell Price</th>
+                <th style="padding:7px 12px;text-align:left;font-size:8px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#888;width:18%">User Price</th>
+                <th style="padding:7px 12px;text-align:left;font-size:8px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#888;width:14%">GM %</th>
+                <th style="padding:7px 12px;text-align:left;font-size:8px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#888;width:20%">Gross Profit</th>
               </tr>
             </thead>
             <tbody>
@@ -1618,7 +1655,7 @@
                 const isBase = row.classList.contains('qb-base');
                 const bg = isBase ? 'background:#111;color:#fff;font-weight:700' : '';
                 return `<tr style="border-bottom:1px solid #eee">
-                  ${cells.map((td, i) => `<td style="padding:6px 10px;font-size:11px;${bg}${i===1?';font-weight:700':''}">${td.innerText||td.textContent}</td>`).join('')}
+                  ${cells.map((td, i) => `<td style="padding:7px 12px;font-size:12px;overflow:hidden;${bg}${i===1?';font-weight:700':''}">${td.innerText||td.textContent}</td>`).join('')}
                 </tr>`;
               }).join('')}
             </tbody>
@@ -1713,6 +1750,19 @@
   // ─────────────────────────────────────────
   let quotes = [];
   try { quotes = JSON.parse(localStorage.getItem('quotesv1') || '[]'); } catch(e) {}
+
+  function openRevHistory() {
+    const m = document.getElementById('revModal');
+    m.style.display = 'flex';
+  }
+  function closeRevHistory() {
+    const m = document.getElementById('revModal');
+    m.style.display = 'none';
+  }
+  // Close on backdrop click
+  document.getElementById('revModal').addEventListener('click', function(e) {
+    if (e.target === this) closeRevHistory();
+  });
 
   function openQuoteModal() {
     const cost = parseFloat($('cost').value);
