@@ -947,7 +947,7 @@
         <input type="text" id="qCompanyName" class="standalone" placeholder="e.g. Caterpillar Inc." />
       </div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.875rem;margin-bottom:0.875rem">
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:0.875rem;margin-bottom:0.875rem">
       <div style="display:flex;flex-direction:column;gap:0.35rem">
         <label style="font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#888">Customer Email</label>
         <input type="email" id="qEmail" class="standalone" placeholder="email@company.com" />
@@ -1563,9 +1563,8 @@
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #111;padding-bottom:16px;margin-bottom:24px">
         <div style="display:flex;align-items:center;gap:12px">
-          ${logoSrc ? `<img src="${logoSrc}" style="height:44px;width:auto" />` : ''}
+          ${logoSrc ? `<img src="${logoSrc}" style="height:44px;width:auto;filter:invert(1)" />` : ''}
           <div>
-            <div style="font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#888;margin-top:4px">Parts Price Calculator</div>
             ${partNum ? `<div style="font-size:13px;font-weight:700;margin-top:2px">Part #: ${partNum}</div>` : ''}
             ${partDesc ? `<div style="font-size:11px;color:#555;margin-top:2px">${partDesc}</div>` : ''}
           </div>
