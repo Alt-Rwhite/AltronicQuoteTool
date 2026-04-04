@@ -601,6 +601,33 @@
   </div>
 </div>
 
+<!-- ── Set Password Screen (shown on invite / password reset) ── -->
+<div id="setPasswordScreen" style="display:none;min-height:100vh;background:#fff;align-items:center;justify-content:center;padding:1.5rem;">
+  <div style="width:100%;max-width:380px;">
+    <div style="text-align:center;margin-bottom:2.5rem;">
+      <img id="setPassLogo" style="height:64px;width:auto;margin-bottom:1.5rem;display:block;margin-left:auto;margin-right:auto;" />
+      <div style="font-family:'Space Mono',monospace;font-size:0.75rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#888;">Altronic Price Tool</div>
+    </div>
+    <h2 style="font-family:'Space Mono',monospace;font-size:1rem;font-weight:700;margin:0 0 0.5rem;color:#111;">Set Your Password</h2>
+    <p style="font-size:0.8rem;color:#888;margin:0 0 1.5rem;line-height:1.6;">Welcome to the Altronic Quote Tool. Please set a password to complete your account setup.</p>
+    <div id="setPassError" style="display:none;background:#fee;border:1px solid #fcc;border-radius:3px;padding:0.75rem 1rem;font-size:0.75rem;color:#c00;margin-bottom:1rem;"></div>
+    <div style="display:flex;flex-direction:column;gap:0.875rem;margin-bottom:1.25rem;">
+      <div style="display:flex;flex-direction:column;gap:0.35rem;">
+        <label style="font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#888;">New Password</label>
+        <input id="newPassword" type="password" placeholder="Choose a password" style="border:1px solid #d0d0d0;border-radius:2px;padding:0.65rem 0.75rem;font-family:'Space Grotesk',sans-serif;font-size:0.875rem;outline:none;background:#f4f4f4;width:100%;" />
+      </div>
+      <div style="display:flex;flex-direction:column;gap:0.35rem;">
+        <label style="font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#888;">Confirm Password</label>
+        <input id="confirmPassword" type="password" placeholder="Confirm your password" style="border:1px solid #d0d0d0;border-radius:2px;padding:0.65rem 0.75rem;font-family:'Space Grotesk',sans-serif;font-size:0.875rem;outline:none;background:#f4f4f4;width:100%;" />
+      </div>
+    </div>
+    <button id="setPassBtn" onclick="handleSetPassword()" style="width:100%;background:#111;color:#fff;border:none;border-radius:2px;padding:0.8rem;font-family:'Space Mono',monospace;font-size:0.75rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;">Set Password &amp; Sign In</button>
+    <div style="text-align:center;margin-top:2rem;font-size:0.62rem;color:#bbb;letter-spacing:0.04em;">
+      This quoting tool is managed and built by Ray White &nbsp;|&nbsp; REV2.1
+    </div>
+  </div>
+</div>
+
 <!-- ── Main App (hidden until logged in) ── -->
 <div id="appShell" style="display:none;">
 <div class="app-shell">
@@ -2223,11 +2250,65 @@
   document.getElementById('loginEmail').addEventListener('keydown', e => {
     if (e.key === 'Enter') handleLogin();
   });
+  document.getElementById('confirmPassword').addEventListener('keydown', e => {
+    if (e.key === 'Enter') handleSetPassword();
+  });
 
-  // Check existing session on load
+  // Copy logo to set password screen
+  const brandImg2 = document.querySelector('.brand img');
+  if (brandImg2) document.getElementById('setPassLogo').src = brandImg2.src;
+
+  function showSetPassword() {
+    document.getElementById('loginScreen').style.display    = 'none';
+    document.getElementById('appShell').style.display       = 'none';
+    document.getElementById('setPasswordScreen').style.display = 'flex';
+  }
+
+  async function handleSetPassword() {
+    const pw1   = document.getElementById('newPassword').value;
+    const pw2   = document.getElementById('confirmPassword').value;
+    const errEl = document.getElementById('setPassError');
+    const btn   = document.getElementById('setPassBtn');
+    errEl.style.display = 'none';
+    if (!pw1 || pw1.length < 6) {
+      errEl.textContent = 'Password must be at least 6 characters.';
+      errEl.style.display = 'block'; return;
+    }
+    if (pw1 !== pw2) {
+      errEl.textContent = 'Passwords do not match.';
+      errEl.style.display = 'block'; return;
+    }
+    btn.textContent = 'Saving…'; btn.disabled = true;
+    const { error } = await sb.auth.updateUser({ password: pw1 });
+    btn.textContent = 'Set Password & Sign In'; btn.disabled = false;
+    if (error) {
+      errEl.textContent = error.message;
+      errEl.style.display = 'block';
+    } else {
+      document.getElementById('setPasswordScreen').style.display = 'none';
+      showApp();
+    }
+  }
+
+  // Check existing session on load — detect invite/recovery links
   (async () => {
-    const { data: { session } } = await sb.auth.getSession();
-    if (session) { showApp(); } else { showLogin(); }
+    // Supabase puts tokens in the URL hash on invite/reset
+    const hash   = window.location.hash;
+    const params = new URLSearchParams(hash.replace('#', '?'));
+    const type   = params.get('type');
+
+    if (type === 'invite' || type === 'recovery') {
+      // Let Supabase process the token from the URL
+      const { data: { session }, error } = await sb.auth.getSession();
+      if (session) {
+        showSetPassword();
+      } else {
+        showLogin();
+      }
+    } else {
+      const { data: { session } } = await sb.auth.getSession();
+      if (session) { showApp(); } else { showLogin(); }
+    }
   })();
 </script>
 </body>
