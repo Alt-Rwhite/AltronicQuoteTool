@@ -596,7 +596,7 @@
       <button onclick="handleForgotPassword()" style="background:none;border:none;font-family:'Space Grotesk',sans-serif;font-size:0.75rem;color:#888;cursor:pointer;text-decoration:underline;text-underline-offset:2px;">Forgot password?</button>
     </div>
     <div style="text-align:center;margin-top:2rem;font-size:0.62rem;color:#bbb;letter-spacing:0.04em;">
-      This quoting tool is managed and built by Ray White
+      This quoting tool is managed and built by Ray White &nbsp;|&nbsp; REV2.1
     </div>
   </div>
 </div>
@@ -932,6 +932,7 @@
                 <th>GM %</th>
                 <th>Markup</th>
                 <th>Notes</th>
+                <th>Saved</th>
                 <th></th>
               </tr>
             </thead>
@@ -1046,6 +1047,7 @@
           <th style="font-size:0.55rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#888;padding:0.65rem 0.875rem;text-align:left;white-space:nowrap">Valid</th>
           <th style="font-size:0.55rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#888;padding:0.65rem 0.875rem;text-align:left;white-space:nowrap">Parts</th>
           <th style="font-size:0.55rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#888;padding:0.65rem 0.875rem;text-align:left;white-space:nowrap">Type</th>
+          <th style="font-size:0.55rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#888;padding:0.65rem 0.875rem;text-align:left;white-space:nowrap">Saved</th>
           <th style="padding:0.65rem 0.875rem"></th>
         </tr>
       </thead>
@@ -1056,7 +1058,7 @@
 
 <!-- ── Site Footer ── -->
 <footer style="border-top:1px solid var(--border);background:var(--bg);padding:0.875rem 2rem;text-align:center;font-size:0.65rem;color:var(--muted);letter-spacing:0.04em;position:sticky;bottom:0;z-index:50;">
-  This quoting tool is managed and built by Ray White &mdash; ray.white [at] altronic-llc.com &nbsp;|&nbsp; <button onclick="openRevHistory()" style="background:none;border:none;cursor:pointer;font-family:inherit;font-size:inherit;font-weight:700;color:var(--text);letter-spacing:0.04em;padding:0;text-decoration:underline;text-underline-offset:2px;">REV2</button>
+  This quoting tool is managed and built by Ray White &mdash; ray.white [at] altronic-llc.com &nbsp;|&nbsp; <button onclick="openRevHistory()" style="background:none;border:none;cursor:pointer;font-family:inherit;font-size:inherit;font-weight:700;color:var(--text);letter-spacing:0.04em;padding:0;text-decoration:underline;text-underline-offset:2px;">REV2.1</button>
 </footer>
 </div><!-- end appShell -->
 
@@ -1069,8 +1071,17 @@
     </div>
     <div style="display:flex;flex-direction:column;gap:1rem;">
       <div style="border-left:3px solid #111;padding-left:1rem;">
-        <div style="font-family:'Space Mono',monospace;font-size:0.8rem;font-weight:700">REV2 — Current</div>
+        <div style="font-family:'Space Mono',monospace;font-size:0.8rem;font-weight:700">REV2.1 — Current</div>
         <div style="font-size:0.7rem;color:#888;margin-top:0.25rem;margin-bottom:0.5rem">April 4, 2026</div>
+        <ul style="font-size:0.75rem;line-height:1.7;color:#444;padding-left:1.1rem;margin:0">
+          <li>Saved date column added to parts table</li>
+          <li>Date stamps on save and update</li>
+          <li>Rev number shown on login screen</li>
+        </ul>
+      </div>
+      <div style="border-left:3px solid #d0d0d0;padding-left:1rem;">
+        <div style="font-family:'Space Mono',monospace;font-size:0.8rem;font-weight:700;color:#888">REV2</div>
+        <div style="font-size:0.7rem;color:#aaa;margin-top:0.25rem;margin-bottom:0.5rem">April 4, 2026</div>
         <ul style="font-size:0.75rem;line-height:1.7;color:#444;padding-left:1.1rem;margin:0">
           <li>Supabase login — email &amp; password authentication</li>
           <li>Cloud storage — parts and quotes saved per user</li>
@@ -1257,14 +1268,14 @@
     if (editingId !== null) {
       const idx = parts.findIndex(p => p.id === editingId);
       if (idx !== -1) {
-        parts[idx] = { ...data, id: editingId };
+        parts[idx] = { ...data, id: editingId, savedAt: new Date().toISOString() };
         await sb.from('parts').update({ data: parts[idx] }).eq('data->>id', String(editingId)).eq('user_id', user.id);
       }
       editingId = null;
       $('saveBtn').style.background = '';
       $('saveBtn').style.borderColor = '';
     } else {
-      const newPart = { ...data, id: Date.now() };
+      const newPart = { ...data, id: Date.now(), savedAt: new Date().toISOString() };
       parts.unshift(newPart);
       await sb.from('parts').insert({ user_id: user.id, data: newPart });
     }
@@ -1465,6 +1476,7 @@
 
     parts.unshift({
       id:        Date.now(),
+      savedAt:   new Date().toISOString(),
       partNum:   $('partNum').value.trim() || '—',
       desc:      $('partDesc').value.trim(),
       cost,
@@ -1567,6 +1579,7 @@
         <td><span class="badge">${pct(p.gm)}</span></td>
         <td>${pct(p.markup)}</td>
         <td class="notes-cell" title="${esc(p.notes)}">${esc(p.notes) || '—'}</td>
+        <td style="font-size:0.65rem;color:#888;white-space:nowrap">${p.savedAt ? new Date(p.savedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—'}</td>
         <td onclick="event.stopPropagation()"><button class="del-btn" onclick="deletePart(${p.id})">✕</button></td>
       </tr>`).join('');
   }
@@ -1916,9 +1929,9 @@
     if (!q) { alert('No parts to quote. Calculate a part or select saved parts first.'); return; }
     if (!q.customerName) { alert('Please enter a customer name.'); return; }
     if (!q.quoteNum) { alert('Please confirm the quote number.'); return; }
-    quotes.unshift(q);
+    quotes.unshift({ ...q, savedAt: new Date().toISOString() });
     const { data: { user } } = await sb.auth.getUser();
-    if (user) await sb.from('quotes').insert({ user_id: user.id, data: q });
+    if (user) await sb.from('quotes').insert({ user_id: user.id, data: quotes[0] });
     renderQuotes();
     closeQuoteModal();
     alert(`Quote ${q.quoteNum} saved!`);
@@ -1947,6 +1960,7 @@
             ? '<span style="display:inline-block;padding:0.1rem 0.4rem;background:#f4f4f4;border:1px solid #d0d0d0;border-radius:2px;font-size:0.62rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;font-family:Space Grotesk,sans-serif">Budgetary</span>'
             : '<span style="display:inline-block;padding:0.1rem 0.4rem;background:#111;color:#fff;border-radius:2px;font-size:0.62rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;font-family:Space Grotesk,sans-serif">Firm</span>'}
         </td>
+        <td style="padding:0.7rem 0.875rem;font-family:'Space Mono',monospace;font-size:0.75rem;color:#888;white-space:nowrap">${q.savedAt ? new Date(q.savedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—'}</td>
         <td style="padding:0.7rem 0.875rem;text-align:right" onclick="event.stopPropagation()">
           <button onclick="redownloadQuote(${q.id})" style="background:none;border:1px solid #d0d0d0;border-radius:2px;padding:0.25rem 0.5rem;font-size:0.68rem;cursor:pointer;margin-right:0.3rem;font-family:'Space Grotesk',sans-serif">↓ PDF</button>
           <button onclick="deleteQuote(${q.id})" style="background:none;border:none;cursor:pointer;color:#888;font-size:0.85rem;padding:0.2rem 0.4rem;border-radius:2px" onmouseover="this.style.color='#8b1a1a'" onmouseout="this.style.color='#888'">✕</button>
@@ -2017,9 +2031,10 @@
     if (!q) { alert('No parts to quote. Calculate a part or select saved parts first.'); return; }
     if (!q.customerName) { alert('Please enter a customer name.'); return; }
     if (save) {
-      quotes.unshift(q);
+      const qWithDate = { ...q, savedAt: new Date().toISOString() };
+      quotes.unshift(qWithDate);
       const { data: { user } } = await sb.auth.getUser();
-      if (user) await sb.from('quotes').insert({ user_id: user.id, data: q });
+      if (user) await sb.from('quotes').insert({ user_id: user.id, data: qWithDate });
       renderQuotes();
     }
     await generateQuotePDFFromData(q);
