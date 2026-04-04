@@ -572,6 +572,37 @@
   </style>
 </head>
 <body>
+
+<!-- ── Login Screen ── -->
+<div id="loginScreen" style="display:none;min-height:100vh;background:#fff;display:flex;align-items:center;justify-content:center;padding:1.5rem;">
+  <div style="width:100%;max-width:380px;">
+    <div style="text-align:center;margin-bottom:2.5rem;">
+      <img id="loginLogo" style="height:64px;width:auto;margin-bottom:1.5rem;display:block;margin-left:auto;margin-right:auto;" />
+      <div style="font-family:'Space Mono',monospace;font-size:0.75rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#888;">Altronic Price Tool</div>
+    </div>
+    <div id="loginError" style="display:none;background:#fee;border:1px solid #fcc;border-radius:3px;padding:0.75rem 1rem;font-size:0.75rem;color:#c00;margin-bottom:1rem;"></div>
+    <div style="display:flex;flex-direction:column;gap:0.875rem;margin-bottom:1.25rem;">
+      <div style="display:flex;flex-direction:column;gap:0.35rem;">
+        <label style="font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#888;">Email</label>
+        <input id="loginEmail" type="email" placeholder="you@altronic-llc.com" style="border:1px solid #d0d0d0;border-radius:2px;padding:0.65rem 0.75rem;font-family:'Space Grotesk',sans-serif;font-size:0.875rem;outline:none;background:#f4f4f4;width:100%;" />
+      </div>
+      <div style="display:flex;flex-direction:column;gap:0.35rem;">
+        <label style="font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#888;">Password</label>
+        <input id="loginPassword" type="password" placeholder="••••••••" style="border:1px solid #d0d0d0;border-radius:2px;padding:0.65rem 0.75rem;font-family:'Space Grotesk',sans-serif;font-size:0.875rem;outline:none;background:#f4f4f4;width:100%;" />
+      </div>
+    </div>
+    <button id="loginBtn" onclick="handleLogin()" style="width:100%;background:#111;color:#fff;border:none;border-radius:2px;padding:0.8rem;font-family:'Space Mono',monospace;font-size:0.75rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;">Sign In</button>
+    <div style="text-align:center;margin-top:1rem;">
+      <button onclick="handleForgotPassword()" style="background:none;border:none;font-family:'Space Grotesk',sans-serif;font-size:0.75rem;color:#888;cursor:pointer;text-decoration:underline;text-underline-offset:2px;">Forgot password?</button>
+    </div>
+    <div style="text-align:center;margin-top:2rem;font-size:0.62rem;color:#bbb;letter-spacing:0.04em;">
+      This quoting tool is managed and built by Ray White
+    </div>
+  </div>
+</div>
+
+<!-- ── Main App (hidden until logged in) ── -->
+<div id="appShell" style="display:none;">
 <div class="app-shell">
 
   <!-- ── Top Bar ── -->
@@ -585,6 +616,7 @@
     <div class="top-bar-formula">
       SELL = COST ÷ (1 − GM%) &nbsp;·&nbsp; USER PRICE = SELL ÷ (1 − DISC%)
     </div>
+    <button onclick="handleSignOut()" style="background:none;border:1px solid var(--border);border-radius:2px;padding:0.35rem 0.75rem;font-family:'Space Mono',monospace;font-size:0.6rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;white-space:nowrap;">Sign Out</button>
   </header>
 
   <!-- ── Main ── -->
@@ -1026,6 +1058,7 @@
 <footer style="border-top:1px solid var(--border);background:var(--bg);padding:0.875rem 2rem;text-align:center;font-size:0.65rem;color:var(--muted);letter-spacing:0.04em;position:sticky;bottom:0;z-index:50;">
   This quoting tool is managed and built by Ray White &mdash; ray.white [at] altronic-llc.com &nbsp;|&nbsp; <button onclick="openRevHistory()" style="background:none;border:none;cursor:pointer;font-family:inherit;font-size:inherit;font-weight:700;color:var(--text);letter-spacing:0.04em;padding:0;text-decoration:underline;text-underline-offset:2px;">REV1</button>
 </footer>
+</div><!-- end appShell -->
 
 <!-- ── Rev History Modal ── -->
 <div id="revModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:2000;display:none;align-items:center;justify-content:center;padding:1rem;">
@@ -1064,6 +1097,7 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
@@ -2090,6 +2124,71 @@
   }, 100);
 
   renderQuotes();
+
+  // ── Supabase Auth ──────────────────────────────────────
+  const SUPA_URL  = 'https://djrdgxrhwstbltbkmjpv.supabase.co';
+  const SUPA_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRqcmRneHJod3N0Ymx0YmttanB2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyOTc5OTcsImV4cCI6MjA5MDg3Mzk5N30.Kx5Wc2MfMXto-rn1Vq5AgsdBzGVUItFjFirkdpNNgVU';
+  const sb        = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+
+  // Copy brand logo into login screen
+  const brandImg = document.querySelector('.brand img');
+  if (brandImg) document.getElementById('loginLogo').src = brandImg.src;
+
+  function showApp() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('appShell').style.display    = 'block';
+  }
+
+  function showLogin() {
+    document.getElementById('appShell').style.display    = 'none';
+    document.getElementById('loginScreen').style.display = 'flex';
+  }
+
+  async function handleLogin() {
+    const email    = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const errEl    = document.getElementById('loginError');
+    const btn      = document.getElementById('loginBtn');
+    errEl.style.display = 'none';
+    btn.textContent = 'Signing in…';
+    btn.disabled = true;
+    const { error } = await sb.auth.signInWithPassword({ email, password });
+    btn.textContent = 'Sign In';
+    btn.disabled = false;
+    if (error) {
+      errEl.textContent   = error.message;
+      errEl.style.display = 'block';
+    } else {
+      showApp();
+    }
+  }
+
+  async function handleForgotPassword() {
+    const email = document.getElementById('loginEmail').value.trim();
+    if (!email) { alert('Enter your email above first.'); return; }
+    const { error } = await sb.auth.resetPasswordForEmail(email);
+    if (error) { alert('Error: ' + error.message); }
+    else { alert('Password reset email sent — check your inbox.'); }
+  }
+
+  async function handleSignOut() {
+    await sb.auth.signOut();
+    showLogin();
+  }
+
+  // Allow Enter key to submit login
+  document.getElementById('loginPassword').addEventListener('keydown', e => {
+    if (e.key === 'Enter') handleLogin();
+  });
+  document.getElementById('loginEmail').addEventListener('keydown', e => {
+    if (e.key === 'Enter') handleLogin();
+  });
+
+  // Check existing session on load
+  (async () => {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) { showApp(); } else { showLogin(); }
+  })();
 </script>
 </body>
 </html>
