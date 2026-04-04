@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Altronic Price Tool — Signing In</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      color: #111;
+    }
+    .wrap {
+      text-align: center;
+      padding: 2rem;
+    }
+    .brand {
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #111;
+      margin-bottom: 6px;
+    }
+    .sub {
+      font-family: 'Courier New', monospace;
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 2rem;
+    }
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid #eee;
+      border-top-color: #111;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 0 auto 1.5rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .msg {
+      font-size: 13px;
+      color: #888;
+      letter-spacing: 0.04em;
+    }
+    .err {
+      font-size: 13px;
+      color: #c00;
+      background: #fee;
+      border: 1px solid #fcc;
+      border-radius: 3px;
+      padding: 0.75rem 1rem;
+      margin-top: 1rem;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="brand">Altronic</div>
+    <div class="sub">Price &amp; Quote Tool</div>
+    <div class="spinner"></div>
+    <div class="msg" id="msg">Setting up your account…</div>
+    <div class="err" id="err"></div>
+  </div>
+
+  <script>
+    const SUPA_URL = 'https://djrdgxrhwstbltbkmjpv.supabase.co';
+    const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRqcmRneHJod3N0Ymx0YmttanB2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyOTc5OTcsImV4cCI6MjA5MDg3Mzk5N30.Kx5Wc2MfMXto-rn1Vq5AgsdBzGVUItFjFirkdpNNgVU';
+    const sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+
+    (async () => {
+      const msgEl = document.getElementById('msg');
+      const errEl = document.getElementById('err');
+
+      try {
+        // Exchange the PKCE code in the URL for a session
+        const { data, error } = await sb.auth.exchangeCodeForSession(
+          window.location.search
+        );
+
+        if (error) {
+          // Try getting existing session as fallback
+          const { data: { session } } = await sb.auth.getSession();
+          if (session) {
+            msgEl.textContent = 'Redirecting…';
+            window.location.href = './index.html?setpassword=1';
+          } else {
+            throw error;
+          }
+        } else if (data?.session) {
+          msgEl.textContent = 'Redirecting…';
+          window.location.href = './index.html?setpassword=1';
+        } else {
+          msgEl.textContent = 'Redirecting to login…';
+          window.location.href = './index.html';
+        }
+      } catch (e) {
+        document.querySelector('.spinner').style.display = 'none';
+        msgEl.textContent = 'Something went wrong.';
+        errEl.textContent = e.message || 'Unable to process invite link. Please contact Ray White.';
+        errEl.style.display = 'block';
+        setTimeout(() => { window.location.href = './index.html'; }, 4000);
+      }
+    })();
+  </script>
+</body>
+</html>

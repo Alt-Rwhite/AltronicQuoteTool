@@ -2206,11 +2206,14 @@
   const SUPA_URL  = 'https://djrdgxrhwstbltbkmjpv.supabase.co';
   const SUPA_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRqcmRneHJod3N0Ymx0YmttanB2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyOTc5OTcsImV4cCI6MjA5MDg3Mzk5N30.Kx5Wc2MfMXto-rn1Vq5AgsdBzGVUItFjFirkdpNNgVU';
 
-  // Read hash BEFORE creating client — Supabase will consume it on init
-  const _rawHash   = window.location.hash;
-  const _hashParams = new URLSearchParams(_rawHash.replace('#', '?'));
-  const _linkType  = _hashParams.get('type'); // 'invite', 'recovery', etc.
-  const _isInvite  = _linkType === 'invite' || _linkType === 'signup' || _linkType === 'recovery';
+  // Detect invite/recovery — set by callback.html after token exchange
+  const _qParams  = new URLSearchParams(window.location.search);
+  const _isInvite = _qParams.get('setpassword') === '1';
+
+  // Clean the URL so refresh doesn't re-trigger set password
+  if (_isInvite) {
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
 
   const sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
 
@@ -2315,31 +2318,24 @@
     }
   }
 
-  // Listen for auth state changes — catches invite and recovery flows
+  // Listen for auth state changes
+  let _appLoaded = false;
   sb.auth.onAuthStateChange(async (event, session) => {
     if (event === 'PASSWORD_RECOVERY') {
-      showSetPassword();
-    } else if (event === 'SIGNED_IN' && _isInvite) {
-      // Came from an invite or recovery link — force password setup
       showSetPassword();
     }
   });
 
   // Initial load check
   (async () => {
-    if (_isInvite) {
-      // Wait briefly for Supabase to process the token then show set password
-      setTimeout(async () => {
-        const { data: { session } } = await sb.auth.getSession();
-        if (session) {
-          showSetPassword();
-        } else {
-          showLogin();
-        }
-      }, 800);
+    const { data: { session } } = await sb.auth.getSession();
+    if (_isInvite && session) {
+      showSetPassword();
+    } else if (session) {
+      _appLoaded = true;
+      showApp();
     } else {
-      const { data: { session } } = await sb.auth.getSession();
-      if (session) { showApp(); } else { showLogin(); }
+      showLogin();
     }
   })();
 </script>
