@@ -596,7 +596,7 @@
       <button onclick="handleForgotPassword()" style="background:none;border:none;font-family:'Space Grotesk',sans-serif;font-size:0.75rem;color:#888;cursor:pointer;text-decoration:underline;text-underline-offset:2px;">Forgot password?</button>
     </div>
     <div style="text-align:center;margin-top:2rem;font-size:0.62rem;color:#bbb;letter-spacing:0.04em;">
-      This quoting tool is managed and built by Ray White &nbsp;|&nbsp; REV2.2
+      This quoting tool is managed and built by Ray White &nbsp;|&nbsp; REV2.3
     </div>
   </div>
 </div>
@@ -623,7 +623,7 @@
     </div>
     <button id="setPassBtn" onclick="handleSetPassword()" style="width:100%;background:#111;color:#fff;border:none;border-radius:2px;padding:0.8rem;font-family:'Space Mono',monospace;font-size:0.75rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;">Set Password &amp; Sign In</button>
     <div style="text-align:center;margin-top:2rem;font-size:0.62rem;color:#bbb;letter-spacing:0.04em;">
-      This quoting tool is managed and built by Ray White &nbsp;|&nbsp; REV2.2
+      This quoting tool is managed and built by Ray White &nbsp;|&nbsp; REV2.3
     </div>
   </div>
 </div>
@@ -1085,7 +1085,7 @@
 
 <!-- ── Site Footer ── -->
 <footer style="border-top:1px solid var(--border);background:var(--bg);padding:0.875rem 2rem;text-align:center;font-size:0.65rem;color:var(--muted);letter-spacing:0.04em;position:sticky;bottom:0;z-index:50;">
-  This quoting tool is managed and built by Ray White &mdash; ray.white [at] altronic-llc.com &nbsp;|&nbsp; <button onclick="openRevHistory()" style="background:none;border:none;cursor:pointer;font-family:inherit;font-size:inherit;font-weight:700;color:var(--text);letter-spacing:0.04em;padding:0;text-decoration:underline;text-underline-offset:2px;">REV2.2</button>
+  This quoting tool is managed and built by Ray White &mdash; ray.white [at] altronic-llc.com &nbsp;|&nbsp; <button onclick="openRevHistory()" style="background:none;border:none;cursor:pointer;font-family:inherit;font-size:inherit;font-weight:700;color:var(--text);letter-spacing:0.04em;padding:0;text-decoration:underline;text-underline-offset:2px;">REV2.3</button>
 </footer>
 </div><!-- end appShell -->
 
@@ -1098,8 +1098,17 @@
     </div>
     <div style="display:flex;flex-direction:column;gap:1rem;">
       <div style="border-left:3px solid #111;padding-left:1rem;">
-        <div style="font-family:'Space Mono',monospace;font-size:0.8rem;font-weight:700">REV2.2 — Current</div>
+        <div style="font-family:'Space Mono',monospace;font-size:0.8rem;font-weight:700">REV2.3 — Current</div>
         <div style="font-size:0.7rem;color:#888;margin-top:0.25rem;margin-bottom:0.5rem">April 4, 2026</div>
+        <ul style="font-size:0.75rem;line-height:1.7;color:#444;padding-left:1.1rem;margin:0">
+          <li>Fixed invite link flow — set password screen now reliably shown</li>
+          <li>URL hash read before Supabase initializes to catch invite token</li>
+          <li>Password recovery flow also triggers set password screen</li>
+        </ul>
+      </div>
+      <div style="border-left:3px solid #d0d0d0;padding-left:1rem;">
+        <div style="font-family:'Space Mono',monospace;font-size:0.8rem;font-weight:700;color:#888">REV2.2</div>
+        <div style="font-size:0.7rem;color:#aaa;margin-top:0.25rem;margin-bottom:0.5rem">April 4, 2026</div>
         <ul style="font-size:0.75rem;line-height:1.7;color:#444;padding-left:1.1rem;margin:0">
           <li>Set password screen shown on invite link click</li>
           <li>Invite flow uses onAuthStateChange to reliably detect invite tokens</li>
@@ -2196,7 +2205,14 @@
   // ── Supabase Auth ──────────────────────────────────────
   const SUPA_URL  = 'https://djrdgxrhwstbltbkmjpv.supabase.co';
   const SUPA_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRqcmRneHJod3N0Ymx0YmttanB2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyOTc5OTcsImV4cCI6MjA5MDg3Mzk5N30.Kx5Wc2MfMXto-rn1Vq5AgsdBzGVUItFjFirkdpNNgVU';
-  const sb        = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+
+  // Read hash BEFORE creating client — Supabase will consume it on init
+  const _rawHash   = window.location.hash;
+  const _hashParams = new URLSearchParams(_rawHash.replace('#', '?'));
+  const _linkType  = _hashParams.get('type'); // 'invite', 'recovery', etc.
+  const _isInvite  = _linkType === 'invite' || _linkType === 'signup' || _linkType === 'recovery';
+
+  const sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
 
   // Copy brand logo into login screen
   const brandImg = document.querySelector('.brand img');
@@ -2303,30 +2319,24 @@
   sb.auth.onAuthStateChange(async (event, session) => {
     if (event === 'PASSWORD_RECOVERY') {
       showSetPassword();
-    } else if (event === 'SIGNED_IN') {
-      // Check if this is a first-time invite sign-in (no password set yet)
-      // Supabase sets amr to ['link'] for magic/invite links vs ['pwd'] for password
-      const amr = session?.user?.amr || [];
-      const usedLink = amr.some(a => a.method === 'otp' || a.method === 'invite');
-      const hash = window.location.hash;
-      const isInvite = hash.includes('type=invite') || hash.includes('type=signup');
-      if (usedLink || isInvite) {
-        showSetPassword();
-      }
+    } else if (event === 'SIGNED_IN' && _isInvite) {
+      // Came from an invite or recovery link — force password setup
+      showSetPassword();
     }
   });
 
   // Initial load check
   (async () => {
-    // Check hash first — Supabase puts type=invite in the URL before processing
-    const hash   = window.location.hash;
-    const params = new URLSearchParams(hash.replace('#', '?'));
-    const type   = params.get('type');
-
-    if (type === 'invite' || type === 'recovery') {
-      // Wait for onAuthStateChange to fire and handle it
-      // Show login in the meantime as a fallback
-      showLogin();
+    if (_isInvite) {
+      // Wait briefly for Supabase to process the token then show set password
+      setTimeout(async () => {
+        const { data: { session } } = await sb.auth.getSession();
+        if (session) {
+          showSetPassword();
+        } else {
+          showLogin();
+        }
+      }, 800);
     } else {
       const { data: { session } } = await sb.auth.getSession();
       if (session) { showApp(); } else { showLogin(); }
