@@ -1056,7 +1056,7 @@
 
 <!-- ── Site Footer ── -->
 <footer style="border-top:1px solid var(--border);background:var(--bg);padding:0.875rem 2rem;text-align:center;font-size:0.65rem;color:var(--muted);letter-spacing:0.04em;position:sticky;bottom:0;z-index:50;">
-  This quoting tool is managed and built by Ray White &mdash; ray.white [at] altronic-llc.com &nbsp;|&nbsp; <button onclick="openRevHistory()" style="background:none;border:none;cursor:pointer;font-family:inherit;font-size:inherit;font-weight:700;color:var(--text);letter-spacing:0.04em;padding:0;text-decoration:underline;text-underline-offset:2px;">REV1</button>
+  This quoting tool is managed and built by Ray White &mdash; ray.white [at] altronic-llc.com &nbsp;|&nbsp; <button onclick="openRevHistory()" style="background:none;border:none;cursor:pointer;font-family:inherit;font-size:inherit;font-weight:700;color:var(--text);letter-spacing:0.04em;padding:0;text-decoration:underline;text-underline-offset:2px;">REV2</button>
 </footer>
 </div><!-- end appShell -->
 
@@ -1069,8 +1069,19 @@
     </div>
     <div style="display:flex;flex-direction:column;gap:1rem;">
       <div style="border-left:3px solid #111;padding-left:1rem;">
-        <div style="font-family:'Space Mono',monospace;font-size:0.8rem;font-weight:700">REV1 — Current</div>
-        <div style="font-size:0.7rem;color:#888;margin-top:0.25rem;margin-bottom:0.5rem">April 2026</div>
+        <div style="font-family:'Space Mono',monospace;font-size:0.8rem;font-weight:700">REV2 — Current</div>
+        <div style="font-size:0.7rem;color:#888;margin-top:0.25rem;margin-bottom:0.5rem">April 4, 2026</div>
+        <ul style="font-size:0.75rem;line-height:1.7;color:#444;padding-left:1.1rem;margin:0">
+          <li>Supabase login — email &amp; password authentication</li>
+          <li>Cloud storage — parts and quotes saved per user</li>
+          <li>Cross-device sync — data loads on any device after login</li>
+          <li>Sign Out button in top bar</li>
+          <li>Forgot password via email reset</li>
+        </ul>
+      </div>
+      <div style="border-left:3px solid #d0d0d0;padding-left:1rem;">
+        <div style="font-family:'Space Mono',monospace;font-size:0.8rem;font-weight:700;color:#888">REV1</div>
+        <div style="font-size:0.7rem;color:#aaa;margin-top:0.25rem;margin-bottom:0.5rem">April 3, 2026</div>
         <ul style="font-size:0.75rem;line-height:1.7;color:#444;padding-left:1.1rem;margin:0">
           <li>Widened snap/PDF canvas for better layout</li>
           <li>Fixed qty break table column sizing in PDF &amp; share image</li>
@@ -1082,7 +1093,7 @@
       </div>
       <div style="border-left:3px solid #d0d0d0;padding-left:1rem;">
         <div style="font-family:'Space Mono',monospace;font-size:0.8rem;font-weight:700;color:#888">REV0 — Initial Release</div>
-        <div style="font-size:0.7rem;color:#aaa;margin-top:0.25rem;margin-bottom:0.5rem">April 2026</div>
+        <div style="font-size:0.7rem;color:#aaa;margin-top:0.25rem;margin-bottom:0.5rem">April 2, 2026</div>
         <ul style="font-size:0.75rem;line-height:1.7;color:#888;padding-left:1.1rem;margin:0">
           <li>Part pricing calculator with GM, sell price &amp; user price</li>
           <li>Qty break pricing with up to 3 tiers</li>
@@ -1102,7 +1113,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
   let parts = [];
-  try { parts = JSON.parse(localStorage.getItem('partsv2') || '[]'); } catch(e) {}
   let editingId = null;
 
   const $ = id => document.getElementById(id);
@@ -1237,25 +1247,31 @@
     };
   }
 
-  function savePart() {
+  async function savePart() {
     const data = buildPartData();
     if (!data) return;
+    const btn = $('saveBtn');
+    btn.textContent = 'Saving…'; btn.disabled = true;
 
+    const { data: { user } } = await sb.auth.getUser();
     if (editingId !== null) {
       const idx = parts.findIndex(p => p.id === editingId);
-      if (idx !== -1) parts[idx] = { ...data, id: editingId };
+      if (idx !== -1) {
+        parts[idx] = { ...data, id: editingId };
+        await sb.from('parts').update({ data: parts[idx] }).eq('data->>id', String(editingId)).eq('user_id', user.id);
+      }
       editingId = null;
       $('saveBtn').style.background = '';
       $('saveBtn').style.borderColor = '';
     } else {
-      parts.unshift({ ...data, id: Date.now() });
+      const newPart = { ...data, id: Date.now() };
+      parts.unshift(newPart);
+      await sb.from('parts').insert({ user_id: user.id, data: newPart });
     }
 
-    try { localStorage.setItem('partsv2', JSON.stringify(parts)); } catch(e) {}
     renderTable();
     resetForm();
-
-    const btn = $('saveBtn');
+    btn.disabled = false;
     btn.textContent = '✓ Saved!';
     setTimeout(() => { btn.textContent = '+ Save Part'; }, 1400);
   }
@@ -1462,11 +1478,11 @@
       qtyBreaks: getQtyBreaks()
     });
 
-    try { localStorage.setItem('partsv2', JSON.stringify(parts)); } catch(e) {}
+    try { localStorage.setItem('partsv2', JSON.stringify(parts)); } catch(e) {}  // legacy fallback
+    const { data: { user } } = await sb.auth.getUser();
+    if (user) await sb.from('parts').insert({ user_id: user.id, data: parts[0] });
     renderTable();
     resetForm();
-
-    const btn = document.querySelector('[onclick="lockManualPrice()"]');
     btn.textContent = '✓ Saved!';
     setTimeout(() => { btn.textContent = '⬆ Use This Price & Save Part'; }, 1400);
   }
@@ -1555,9 +1571,10 @@
       </tr>`).join('');
   }
 
-  function deletePart(id) {
+  async function deletePart(id) {
     parts = parts.filter(p => p.id !== id);
-    try { localStorage.setItem('partsv2', JSON.stringify(parts)); } catch(e) {}
+    const { data: { user } } = await sb.auth.getUser();
+    if (user) await sb.from('parts').delete().eq('data->>id', String(id)).eq('user_id', user.id);
     renderTable();
   }
 
@@ -1783,7 +1800,6 @@
   // QUOTE SYSTEM
   // ─────────────────────────────────────────
   let quotes = [];
-  try { quotes = JSON.parse(localStorage.getItem('quotesv1') || '[]'); } catch(e) {}
 
   function openRevHistory() {
     const m = document.getElementById('revModal');
@@ -1895,13 +1911,14 @@
     return { id: Date.now(), customerName, companyName, email, validity, quoteNum, rev, budgetary, notes, date, parts: allParts };
   }
 
-  function saveQuote() {
+  async function saveQuote() {
     const q = buildQuoteData();
     if (!q) { alert('No parts to quote. Calculate a part or select saved parts first.'); return; }
     if (!q.customerName) { alert('Please enter a customer name.'); return; }
     if (!q.quoteNum) { alert('Please confirm the quote number.'); return; }
     quotes.unshift(q);
-    try { localStorage.setItem('quotesv1', JSON.stringify(quotes)); } catch(e) {}
+    const { data: { user } } = await sb.auth.getUser();
+    if (user) await sb.from('quotes').insert({ user_id: user.id, data: q });
     renderQuotes();
     closeQuoteModal();
     alert(`Quote ${q.quoteNum} saved!`);
@@ -1987,10 +2004,11 @@
     generateQuotePDFFromData(q);
   }
 
-  function deleteQuote(id) {
+  async function deleteQuote(id) {
     if (!confirm('Delete this quote?')) return;
     quotes = quotes.filter(q => q.id !== id);
-    try { localStorage.setItem('quotesv1', JSON.stringify(quotes)); } catch(e) {}
+    const { data: { user } } = await sb.auth.getUser();
+    if (user) await sb.from('quotes').delete().eq('data->>id', String(id)).eq('user_id', user.id);
     renderQuotes();
   }
 
@@ -2000,7 +2018,8 @@
     if (!q.customerName) { alert('Please enter a customer name.'); return; }
     if (save) {
       quotes.unshift(q);
-      try { localStorage.setItem('quotesv1', JSON.stringify(quotes)); } catch(e) {}
+      const { data: { user } } = await sb.auth.getUser();
+      if (user) await sb.from('quotes').insert({ user_id: user.id, data: q });
       renderQuotes();
     }
     await generateQuotePDFFromData(q);
@@ -2123,8 +2142,6 @@
     if (revEl) revEl.addEventListener('input', updateQuoteNumber);
   }, 100);
 
-  renderQuotes();
-
   // ── Supabase Auth ──────────────────────────────────────
   const SUPA_URL  = 'https://djrdgxrhwstbltbkmjpv.supabase.co';
   const SUPA_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRqcmRneHJod3N0Ymx0YmttanB2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyOTc5OTcsImV4cCI6MjA5MDg3Mzk5N30.Kx5Wc2MfMXto-rn1Vq5AgsdBzGVUItFjFirkdpNNgVU';
@@ -2134,9 +2151,17 @@
   const brandImg = document.querySelector('.brand img');
   if (brandImg) document.getElementById('loginLogo').src = brandImg.src;
 
-  function showApp() {
+  async function showApp() {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('appShell').style.display    = 'block';
+    // Load user's parts and quotes from Supabase
+    const { data: { user } } = await sb.auth.getUser();
+    if (user) {
+      const { data: partsRows } = await sb.from('parts').select('data').eq('user_id', user.id).order('created_at', { ascending: false });
+      if (partsRows) { parts = partsRows.map(r => r.data); renderTable(); }
+      const { data: quotesRows } = await sb.from('quotes').select('data').eq('user_id', user.id).order('created_at', { ascending: false });
+      if (quotesRows) { quotes = quotesRows.map(r => r.data); renderQuotes(); }
+    }
   }
 
   function showLogin() {
