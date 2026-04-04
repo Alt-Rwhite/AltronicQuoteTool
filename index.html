@@ -1450,7 +1450,7 @@
     $('qtyBreakResult').style.display = '';
   }
 
-  function lockManualPrice() {
+  async function lockManualPrice() {
     const cost        = parseFloat($('cost').value);
     const manualPrice = parseFloat($('manualPrice').value);
     if (isNaN(cost) || cost <= 0 || isNaN(manualPrice) || manualPrice <= 0) return;
