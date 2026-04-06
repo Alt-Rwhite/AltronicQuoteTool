@@ -16,10 +16,7 @@
       min-height: 100vh;
       color: #111;
     }
-    .wrap {
-      text-align: center;
-      padding: 2rem;
-    }
+    .wrap { text-align: center; padding: 2rem; }
     .brand {
       font-family: 'Courier New', monospace;
       font-size: 13px;
@@ -47,11 +44,7 @@
       margin: 0 auto 1.5rem;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .msg {
-      font-size: 13px;
-      color: #888;
-      letter-spacing: 0.04em;
-    }
+    .msg { font-size: 13px; color: #888; letter-spacing: 0.04em; }
     .err {
       font-size: 13px;
       color: #c00;
@@ -61,6 +54,7 @@
       padding: 0.75rem 1rem;
       margin-top: 1rem;
       display: none;
+      max-width: 320px;
     }
   </style>
 </head>
@@ -69,7 +63,7 @@
     <div class="brand">Altronic</div>
     <div class="sub">Price &amp; Quote Tool</div>
     <div class="spinner"></div>
-    <div class="msg" id="msg">Setting up your account…</div>
+    <div class="msg" id="msg">Signing you in…</div>
     <div class="err" id="err"></div>
   </div>
 
@@ -79,35 +73,43 @@
     const sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
 
     (async () => {
-      const msgEl = document.getElementById('msg');
-      const errEl = document.getElementById('err');
+      const msgEl  = document.getElementById('msg');
+      const errEl  = document.getElementById('err');
 
       try {
-        // Exchange the PKCE code in the URL for a session
-        const { data, error } = await sb.auth.exchangeCodeForSession(
-          window.location.search
-        );
+        const search  = window.location.search;
+        const hash    = window.location.hash;
+        const qParams = new URLSearchParams(search);
+        const hParams = new URLSearchParams(hash.replace('#', '?'));
 
-        if (error) {
-          // Try getting existing session as fallback
-          const { data: { session } } = await sb.auth.getSession();
-          if (session) {
-            msgEl.textContent = 'Redirecting…';
-            window.location.href = './index.html?setpassword=1';
-          } else {
-            throw error;
-          }
-        } else if (data?.session) {
-          msgEl.textContent = 'Redirecting…';
-          window.location.href = './index.html?setpassword=1';
+        const hasCode  = qParams.has('code');         // PKCE — invite/reset
+        const hasToken = hParams.has('access_token'); // Implicit — Google OAuth
+
+        if (hasCode) {
+          // PKCE flow — email invite or password reset
+          msgEl.textContent = 'Setting up your account…';
+          const { data, error } = await sb.auth.exchangeCodeForSession(search);
+          if (error) throw error;
+          window.location.href = data?.session
+            ? './index.html?setpassword=1'
+            : './index.html';
+
+        } else if (hasToken) {
+          // Implicit flow — Google OAuth
+          msgEl.textContent = 'Completing Google sign in…';
+          // Supabase auto-processes the hash on getSession
+          await sb.auth.getSession();
+          window.location.href = './index.html';
+
         } else {
-          msgEl.textContent = 'Redirecting to login…';
+          // Fallback
           window.location.href = './index.html';
         }
+
       } catch (e) {
         document.querySelector('.spinner').style.display = 'none';
         msgEl.textContent = 'Something went wrong.';
-        errEl.textContent = e.message || 'Unable to process invite link. Please contact Ray White.';
+        errEl.textContent = e.message || 'Unable to complete sign in. Please contact Ray White.';
         errEl.style.display = 'block';
         setTimeout(() => { window.location.href = './index.html'; }, 4000);
       }
