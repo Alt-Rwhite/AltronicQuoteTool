@@ -610,7 +610,7 @@
       <button onclick="handleForgotPassword()" style="background:none;border:none;font-family:'Space Grotesk',sans-serif;font-size:0.75rem;color:#888;cursor:pointer;text-decoration:underline;text-underline-offset:2px;">Forgot password?</button>
     </div>
     <div style="text-align:center;margin-top:2rem;font-size:0.62rem;color:#bbb;letter-spacing:0.04em;">
-      This quoting tool is managed and built by Ray White &nbsp;|&nbsp; REV2.3
+      This quoting tool is managed and built by Ray White &nbsp;|&nbsp; REV2.4
     </div>
   </div>
 </div>
@@ -637,7 +637,7 @@
     </div>
     <button id="setPassBtn" onclick="handleSetPassword()" style="width:100%;background:#111;color:#fff;border:none;border-radius:2px;padding:0.8rem;font-family:'Space Mono',monospace;font-size:0.75rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;">Set Password &amp; Sign In</button>
     <div style="text-align:center;margin-top:2rem;font-size:0.62rem;color:#bbb;letter-spacing:0.04em;">
-      This quoting tool is managed and built by Ray White &nbsp;|&nbsp; REV2.3
+      This quoting tool is managed and built by Ray White &nbsp;|&nbsp; REV2.4
     </div>
   </div>
 </div>
@@ -739,7 +739,7 @@
               <div class="big-box-value" id="sellPrice">—</div>
               <div class="big-box-sub">at <span id="sellGMLabel">—</span>% gross margin</div>
             </div>
-            <div class="big-box">
+            <div class="big-box" id="userPriceBox">
               <div class="big-box-label">User (List) Price</div>
               <div class="big-box-value" id="userPrice">—</div>
               <div class="big-box-sub"><span id="discLabel">—</span>% off = sell price</div>
@@ -882,12 +882,17 @@
 
       <!-- GM Range Chart -->
       <div class="section" id="gmChartSection" style="display:none">
-        <div class="section-label">04 — GM Range Visualizer</div>
-        <div class="card" style="padding:1.25rem 1.25rem 1rem">
-          <p style="font-size:0.72rem;color:var(--muted);margin-bottom:1.1rem;line-height:1.5">
-            Sell price and user price across GM levels — your target is highlighted.
-          </p>
-          <div id="gmChart" style="overflow-x:auto;margin:0 -0.25rem;"></div>
+        <div class="section-label" onclick="toggleSection('gmChartBody','gmChartChevron')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none">
+          <span>04 — GM Range Visualizer</span>
+          <span id="gmChartChevron" style="font-size:0.7rem;color:var(--muted);transition:transform 0.2s">▼</span>
+        </div>
+        <div id="gmChartBody" style="display:none">
+          <div class="card" style="padding:1.25rem 1.25rem 1rem">
+            <p style="font-size:0.72rem;color:var(--muted);margin-bottom:1.1rem;line-height:1.5">
+              Sell price and user price across GM levels — your target is highlighted.
+            </p>
+            <div id="gmChart" style="overflow-x:auto;margin:0 -0.25rem;"></div>
+          </div>
         </div>
       </div>
 
@@ -895,47 +900,51 @@
 
       <!-- Manual GM Check -->
       <div class="section">
-        <div class="section-label">05 — Manual Price → GM Check</div>
-        <div class="card">
-          <p style="font-size:0.75rem;color:var(--muted);margin-bottom:0.875rem;line-height:1.5">
-            Enter any sale price to check the resulting GM based on the cost above.
-          </p>
-          <div class="field-row">
-            <div class="field">
-              <label>Manual Sale Price</label>
-              <div class="input-group">
-                <span class="sym">$</span>
-                <input type="number" id="manualPrice" placeholder="0.00" min="0" step="0.01" inputmode="decimal" />
+        <div class="section-label" onclick="toggleSection('manualBody','manualChevron')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none">
+          <span>05 — Manual Price → GM Check</span>
+          <span id="manualChevron" style="font-size:0.7rem;color:var(--muted);transition:transform 0.2s">▶</span>
+        </div>
+        <div id="manualBody" style="display:none">
+          <div class="card">
+            <p style="font-size:0.75rem;color:var(--muted);margin-bottom:0.875rem;line-height:1.5">
+              Enter any sale price to check the resulting GM based on the cost above.
+            </p>
+            <div class="field-row">
+              <div class="field">
+                <label>Manual Sale Price</label>
+                <div class="input-group">
+                  <span class="sym">$</span>
+                  <input type="number" id="manualPrice" placeholder="0.00" min="0" step="0.01" inputmode="decimal" />
+                </div>
+              </div>
+              <div class="field" style="justify-content:flex-end;padding-top:1.3rem">
+                <span style="font-size:0.65rem;color:var(--muted)">Pulls cost from Part Details</span>
               </div>
             </div>
-            <div class="field" style="justify-content:flex-end;padding-top:1.3rem">
-              <span style="font-size:0.65rem;color:var(--muted)">Pulls cost from Part Details</span>
-            </div>
-          </div>
-
-          <div class="manual-result" id="manualResult">
-            <div class="manual-row">
-              <span class="m-label">Sale Price</span>
-              <span class="m-value" id="mSell">—</span>
-            </div>
-            <div class="manual-row">
-              <span class="m-label">Part Cost</span>
-              <span class="m-value" id="mCost">—</span>
-            </div>
-            <div class="manual-row">
-              <span class="m-label">Gross Profit</span>
-              <span class="m-value" id="mProfit">—</span>
-            </div>
-            <div class="manual-row">
-              <span class="m-label">Gross Margin %</span>
-              <span class="m-value" id="mGM">—</span>
-            </div>
-            <div class="manual-row">
-              <span class="m-label">Markup %</span>
-              <span class="m-value" id="mMarkup">—</span>
-            </div>
-            <div style="margin-top:0.875rem">
-              <button class="btn btn-primary" onclick="lockManualPrice()" style="width:100%">⬆ Use This Price &amp; Save Part</button>
+            <div class="manual-result" id="manualResult">
+              <div class="manual-row">
+                <span class="m-label">Sale Price</span>
+                <span class="m-value" id="mSell">—</span>
+              </div>
+              <div class="manual-row">
+                <span class="m-label">Part Cost</span>
+                <span class="m-value" id="mCost">—</span>
+              </div>
+              <div class="manual-row">
+                <span class="m-label">Gross Profit</span>
+                <span class="m-value" id="mProfit">—</span>
+              </div>
+              <div class="manual-row">
+                <span class="m-label">Gross Margin %</span>
+                <span class="m-value" id="mGM">—</span>
+              </div>
+              <div class="manual-row">
+                <span class="m-label">Markup %</span>
+                <span class="m-value" id="mMarkup">—</span>
+              </div>
+              <div style="margin-top:0.875rem">
+                <button class="btn btn-primary" onclick="lockManualPrice()" style="width:100%">⬆ Use This Price &amp; Save Part</button>
+              </div>
             </div>
           </div>
         </div>
@@ -1099,7 +1108,7 @@
 
 <!-- ── Site Footer ── -->
 <footer style="border-top:1px solid var(--border);background:var(--bg);padding:0.875rem 2rem;text-align:center;font-size:0.65rem;color:var(--muted);letter-spacing:0.04em;position:sticky;bottom:0;z-index:50;">
-  This quoting tool is managed and built by Ray White &mdash; ray.white [at] altronic-llc.com &nbsp;|&nbsp; <button onclick="openRevHistory()" style="background:none;border:none;cursor:pointer;font-family:inherit;font-size:inherit;font-weight:700;color:var(--text);letter-spacing:0.04em;padding:0;text-decoration:underline;text-underline-offset:2px;">REV2.3</button>
+  This quoting tool is managed and built by Ray White &mdash; ray.white [at] altronic-llc.com &nbsp;|&nbsp; <button onclick="openRevHistory()" style="background:none;border:none;cursor:pointer;font-family:inherit;font-size:inherit;font-weight:700;color:var(--text);letter-spacing:0.04em;padding:0;text-decoration:underline;text-underline-offset:2px;">REV2.4</button> &nbsp;|&nbsp; <span id="footerEmail" style="color:var(--muted)"></span>
 </footer>
 </div><!-- end appShell -->
 
@@ -1112,8 +1121,19 @@
     </div>
     <div style="display:flex;flex-direction:column;gap:1rem;">
       <div style="border-left:3px solid #111;padding-left:1rem;">
-        <div style="font-family:'Space Mono',monospace;font-size:0.8rem;font-weight:700">REV2.3 — Current</div>
-        <div style="font-size:0.7rem;color:#888;margin-top:0.25rem;margin-bottom:0.5rem">April 4, 2026</div>
+        <div style="font-family:'Space Mono',monospace;font-size:0.8rem;font-weight:700">REV2.4 — Current</div>
+        <div style="font-size:0.7rem;color:#888;margin-top:0.25rem;margin-bottom:0.5rem">April 7, 2026</div>
+        <ul style="font-size:0.75rem;line-height:1.7;color:#444;padding-left:1.1rem;margin:0">
+          <li>Fixed part number truncation in PDF &amp; share image</li>
+          <li>Logged-in email shown in app footer</li>
+          <li>User price box hidden when no discount set</li>
+          <li>Sections 04 and 05 now collapsible</li>
+          <li>Google OAuth sign in added</li>
+        </ul>
+      </div>
+      <div style="border-left:3px solid #d0d0d0;padding-left:1rem;">
+        <div style="font-family:'Space Mono',monospace;font-size:0.8rem;font-weight:700;color:#888">REV2.3</div>
+        <div style="font-size:0.7rem;color:#aaa;margin-top:0.25rem;margin-bottom:0.5rem">April 4, 2026</div>
         <ul style="font-size:0.75rem;line-height:1.7;color:#444;padding-left:1.1rem;margin:0">
           <li>Fixed invite link flow — set password screen now reliably shown</li>
           <li>URL hash read before Supabase initializes to catch invite token</li>
@@ -1241,9 +1261,11 @@
       $('gmBar').style.width       = Math.min(gmFromRounded, 99) + '%';
       $('bProfit').textContent     = fmt(sellFromRounded - cost);
       $('bMarkup').textContent     = pct(((sellFromRounded - cost) / cost) * 100);
+      $('userPriceBox').style.display = '';
     } else {
       $('userPrice').textContent = '—';
       $('discLabel').textContent = 'No discount set';
+      $('userPriceBox').style.display = 'none';
     }
 
     // Pass the actual displayed sell price so qty breaks base matches exactly
@@ -1412,6 +1434,8 @@
     $('calcPlaceholder').style.display = '';
     $('manualResult').classList.remove('visible');
     $('gmChartSection').style.display = 'none';
+    $('gmChartBody').style.display    = 'none';
+    $('gmChartChevron').textContent   = '▼';
     $('qtyBreaksSection').style.display = 'none';
     $('qtyBreaksHr').style.display = 'none';
     const qbBtn = document.querySelector('[onclick="toggleQtyBreaks()"]');
@@ -1611,6 +1635,8 @@
       </table>`;
 
     $('gmChartSection').style.display = '';
+    $('gmChartBody').style.display    = '';
+    $('gmChartChevron').textContent   = '▼';
   }
 
   function renderTable() {
@@ -1720,7 +1746,7 @@
         <div style="display:flex;align-items:center;gap:12px">
           ${logoSrc ? `<img src="${logoSrc}" style="height:44px;width:auto" />` : ''}
           <div>
-            ${partNum ? `<div style="font-size:13px;font-weight:700;margin-top:2px">Part #: ${partNum}</div>` : ''}
+            ${partNum ? `<div style="font-size:13px;font-weight:700;margin-top:2px;font-family:'Courier New',monospace;word-break:break-all">${partNum}</div>` : ''}
             ${partDesc ? `<div style="font-size:11px;color:#555;margin-top:2px">${partDesc}</div>` : ''}
           </div>
         </div>
@@ -1729,17 +1755,17 @@
         </div>
       </div>
       <div style="font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#888;border-top:1px solid #ddd;padding-top:8px;margin-bottom:12px">Calculated Prices</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+      <div style="display:grid;grid-template-columns:${$('userPriceBox').style.display === 'none' ? '1fr' : '1fr 1fr'};gap:12px;margin-bottom:12px">
         <div style="border:2px solid #111;border-radius:3px;padding:14px 16px">
           <div style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:#888;margin-bottom:4px">Sell Price</div>
           <div style="font-size:36px;font-weight:700;line-height:1">${$('sellPrice').textContent}</div>
           <div style="font-size:10px;color:#888;margin-top:4px">at ${$('sellGMLabel').textContent}% gross margin</div>
         </div>
-        <div style="border:2px solid #111;border-radius:3px;padding:14px 16px">
+        ${$('userPriceBox').style.display !== 'none' ? `<div style="border:2px solid #111;border-radius:3px;padding:14px 16px">
           <div style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:#888;margin-bottom:4px">User (List) Price</div>
           <div style="font-size:36px;font-weight:700;line-height:1">${$('userPrice').textContent}</div>
           <div style="font-size:10px;color:#888;margin-top:4px">${$('discLabel').textContent}% off = sell price</div>
-        </div>
+        </div>` : ''}
       </div>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px">
         ${[
@@ -2235,12 +2261,23 @@
   const brandImg = document.querySelector('.brand img');
   if (brandImg) document.getElementById('loginLogo').src = brandImg.src;
 
+  function toggleSection(bodyId, chevronId) {
+    const body    = $(bodyId);
+    const chevron = $(chevronId);
+    const isOpen  = body.style.display !== 'none';
+    body.style.display    = isOpen ? 'none' : '';
+    chevron.textContent   = isOpen ? '▶' : '▼';
+  }
+
   async function showApp() {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('appShell').style.display    = 'block';
     // Load user's parts and quotes from Supabase
     const { data: { user } } = await sb.auth.getUser();
     if (user) {
+      // Show logged in email in footer
+      const emailEl = document.getElementById('footerEmail');
+      if (emailEl) emailEl.textContent = 'Signed in as ' + user.email;
       const { data: partsRows } = await sb.from('parts').select('data').eq('user_id', user.id).order('created_at', { ascending: false });
       if (partsRows) { parts = partsRows.map(r => r.data); renderTable(); }
       const { data: quotesRows } = await sb.from('quotes').select('data').eq('user_id', user.id).order('created_at', { ascending: false });
