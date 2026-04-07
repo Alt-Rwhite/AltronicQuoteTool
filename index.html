@@ -464,7 +464,7 @@
       background: none;
       border: none;
       cursor: pointer;
-      color: var(--muted);
+      color: var(--text);
       font-size: 0.85rem;
       padding: 0.2rem 0.4rem;
       border-radius: 2px;
@@ -610,7 +610,7 @@
       <button onclick="handleForgotPassword()" style="background:none;border:none;font-family:'Space Grotesk',sans-serif;font-size:0.75rem;color:#888;cursor:pointer;text-decoration:underline;text-underline-offset:2px;">Forgot password?</button>
     </div>
     <div style="text-align:center;margin-top:2rem;font-size:0.62rem;color:#bbb;letter-spacing:0.04em;">
-      This quoting tool is managed and built by Ray White &nbsp;|&nbsp; REV2.4
+      This quoting tool is managed and built by Ray White &nbsp;|&nbsp; REV2.5
     </div>
   </div>
 </div>
@@ -637,7 +637,7 @@
     </div>
     <button id="setPassBtn" onclick="handleSetPassword()" style="width:100%;background:#111;color:#fff;border:none;border-radius:2px;padding:0.8rem;font-family:'Space Mono',monospace;font-size:0.75rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;">Set Password &amp; Sign In</button>
     <div style="text-align:center;margin-top:2rem;font-size:0.62rem;color:#bbb;letter-spacing:0.04em;">
-      This quoting tool is managed and built by Ray White &nbsp;|&nbsp; REV2.4
+      This quoting tool is managed and built by Ray White &nbsp;|&nbsp; REV2.5
     </div>
   </div>
 </div>
@@ -657,7 +657,7 @@
     <div class="top-bar-formula">
       SELL = COST ÷ (1 − GM%) &nbsp;·&nbsp; USER PRICE = SELL ÷ (1 − DISC%)
     </div>
-    <button onclick="handleSignOut()" style="background:none;border:1px solid var(--border);border-radius:2px;padding:0.35rem 0.75rem;font-family:'Space Mono',monospace;font-size:0.6rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;white-space:nowrap;">Sign Out</button>
+    <button onclick="handleSignOut()" style="background:none;border:1px solid var(--border);border-radius:2px;padding:0.35rem 0.75rem;font-family:'Space Mono',monospace;font-size:0.6rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text);cursor:pointer;white-space:nowrap;">Sign Out</button>
   </header>
 
   <!-- ── Main ── -->
@@ -884,7 +884,7 @@
       <div class="section" id="gmChartSection" style="display:none">
         <div class="section-label" onclick="toggleSection('gmChartBody','gmChartChevron')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none">
           <span>04 — GM Range Visualizer</span>
-          <span id="gmChartChevron" style="font-size:0.7rem;color:var(--muted);transition:transform 0.2s">▼</span>
+          <span id="gmChartChevron" style="font-size:0.7rem;color:var(--text);transition:transform 0.2s">▼</span>
         </div>
         <div id="gmChartBody" style="display:none">
           <div class="card" style="padding:1.25rem 1.25rem 1rem">
@@ -902,7 +902,7 @@
       <div class="section">
         <div class="section-label" onclick="toggleSection('manualBody','manualChevron')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none">
           <span>05 — Manual Price → GM Check</span>
-          <span id="manualChevron" style="font-size:0.7rem;color:var(--muted);transition:transform 0.2s">▶</span>
+          <span id="manualChevron" style="font-size:0.7rem;color:var(--text);transition:transform 0.2s">▶</span>
         </div>
         <div id="manualBody" style="display:none">
           <div class="card">
@@ -1011,7 +1011,7 @@
         <div style="font-family:'Space Mono',monospace;font-size:1.1rem;font-weight:700;letter-spacing:0.04em">Generate Customer Quote</div>
         <div style="font-size:0.65rem;color:#888;letter-spacing:0.1em;text-transform:uppercase;margin-top:0.2rem">Current part will be quoted</div>
       </div>
-      <button onclick="closeQuoteModal()" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:#888;line-height:1">✕</button>
+      <button onclick="closeQuoteModal()" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:#111;line-height:1">✕</button>
     </div>
 
     <!-- Customer info -->
@@ -1108,7 +1108,7 @@
 
 <!-- ── Site Footer ── -->
 <footer style="border-top:1px solid var(--border);background:var(--bg);padding:0.875rem 2rem;text-align:center;font-size:0.65rem;color:var(--muted);letter-spacing:0.04em;position:sticky;bottom:0;z-index:50;">
-  This quoting tool is managed and built by Ray White &mdash; ray.white [at] altronic-llc.com &nbsp;|&nbsp; <button onclick="openRevHistory()" style="background:none;border:none;cursor:pointer;font-family:inherit;font-size:inherit;font-weight:700;color:var(--text);letter-spacing:0.04em;padding:0;text-decoration:underline;text-underline-offset:2px;">REV2.4</button> &nbsp;|&nbsp; <span id="footerEmail" style="color:var(--muted)"></span>
+  This quoting tool is managed and built by Ray White &mdash; ray.white [at] altronic-llc.com &nbsp;|&nbsp; <button onclick="openRevHistory()" style="background:none;border:none;cursor:pointer;font-family:inherit;font-size:inherit;font-weight:700;color:var(--text);letter-spacing:0.04em;padding:0;text-decoration:underline;text-underline-offset:2px;">REV2.5</button> &nbsp;|&nbsp; <span id="footerEmail" style="color:var(--muted)"></span>
 </footer>
 </div><!-- end appShell -->
 
@@ -1117,12 +1117,22 @@
   <div style="background:#fff;border:2px solid #111;border-radius:4px;padding:2rem;max-width:480px;width:100%;max-height:80vh;overflow-y:auto;">
     <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #111;padding-bottom:1rem;margin-bottom:1.25rem">
       <div style="font-family:'Space Mono',monospace;font-size:1rem;font-weight:700;letter-spacing:0.04em">Revision History</div>
-      <button onclick="closeRevHistory()" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:#888;line-height:1">✕</button>
+      <button onclick="closeRevHistory()" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:#111;line-height:1">✕</button>
     </div>
     <div style="display:flex;flex-direction:column;gap:1rem;">
       <div style="border-left:3px solid #111;padding-left:1rem;">
-        <div style="font-family:'Space Mono',monospace;font-size:0.8rem;font-weight:700">REV2.4 — Current</div>
+        <div style="font-family:'Space Mono',monospace;font-size:0.8rem;font-weight:700">REV2.5 — Current</div>
         <div style="font-size:0.7rem;color:#888;margin-top:0.25rem;margin-bottom:0.5rem">April 7, 2026</div>
+        <ul style="font-size:0.75rem;line-height:1.7;color:#444;padding-left:1.1rem;margin:0">
+          <li>Quote number sequence uses max existing number + 1 (no gaps)</li>
+          <li>Editing a quote preserves its original number</li>
+          <li>All icons and buttons updated to black</li>
+          <li>Section 04 collapses by default after calculate</li>
+        </ul>
+      </div>
+      <div style="border-left:3px solid #d0d0d0;padding-left:1rem;">
+        <div style="font-family:'Space Mono',monospace;font-size:0.8rem;font-weight:700;color:#888">REV2.4</div>
+        <div style="font-size:0.7rem;color:#aaa;margin-top:0.25rem;margin-bottom:0.5rem">April 7, 2026</div>
         <ul style="font-size:0.75rem;line-height:1.7;color:#444;padding-left:1.1rem;margin:0">
           <li>Fixed part number truncation in PDF &amp; share image</li>
           <li>Logged-in email shown in app footer</li>
@@ -1635,8 +1645,12 @@
       </table>`;
 
     $('gmChartSection').style.display = '';
-    $('gmChartBody').style.display    = '';
-    $('gmChartChevron').textContent   = '▼';
+    // Show section header but leave body collapsed — user clicks to expand
+    // Only auto-expand if it was already open
+    if ($('gmChartBody').style.display !== 'none') {
+      $('gmChartBody').style.display  = '';
+      $('gmChartChevron').textContent = '▼';
+    }
   }
 
   function renderTable() {
@@ -1948,6 +1962,7 @@
     }
 
     updateQuoteNumber();
+    _editingQuoteId = null; // fresh quote
     $('quoteModal').style.display = '';
     document.body.style.overflow = 'hidden';
   }
@@ -1955,15 +1970,31 @@
   function closeQuoteModal() {
     $('quoteModal').style.display = 'none';
     document.body.style.overflow = '';
+    _editingQuoteId = null; // reset editing state
   }
 
+  let _editingQuoteId = null; // track if we're editing an existing quote
+
   function updateQuoteNumber() {
-    const name = ($('qCustomerName').value || '').trim();
-    const prefix = name.length >= 3 ? name.substring(0,3).toUpperCase() : (name.toUpperCase() || 'QTE');
-    const now = new Date();
+    // Don't overwrite the number when editing an existing quote
+    if (_editingQuoteId !== null) return;
+
+    const name    = ($('qCustomerName').value || '').trim();
+    const prefix  = name.length >= 3 ? name.substring(0,3).toUpperCase() : (name.toUpperCase() || 'QTE');
+    const now     = new Date();
     const dateStr = String(now.getMonth()+1).padStart(2,'0') + String(now.getDate()).padStart(2,'0') + String(now.getFullYear()).slice(-2);
-    const rev = ($('qRev').value || '1').trim();
-    $('qNumber').value = `${prefix}${dateStr}-${rev}`;
+    const base    = `${prefix}${dateStr}`;
+
+    // Count existing quotes that exactly match this base (with any -N suffix)
+    // Use regex to avoid partial prefix matches
+    const re = new RegExp('^' + base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '-(\\d+)$');
+    const existingNums = quotes
+      .map(q => q.quoteNum ? q.quoteNum.match(re) : null)
+      .filter(Boolean)
+      .map(m => parseInt(m[1], 10));
+    const seq = existingNums.length > 0 ? Math.max(...existingNums) + 1 : 1;
+
+    $('qNumber').value = `${base}-${seq}`;
   }
 
   function buildQuoteData() {
@@ -2048,7 +2079,7 @@
         <td style="padding:0.7rem 0.875rem;font-family:'Space Mono',monospace;font-size:0.75rem;color:#888;white-space:nowrap">${q.savedAt ? new Date(q.savedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—'}</td>
         <td style="padding:0.7rem 0.875rem;text-align:right" onclick="event.stopPropagation()">
           <button onclick="redownloadQuote(${q.id})" style="background:none;border:1px solid #d0d0d0;border-radius:2px;padding:0.25rem 0.5rem;font-size:0.68rem;cursor:pointer;margin-right:0.3rem;font-family:'Space Grotesk',sans-serif">↓ PDF</button>
-          <button onclick="deleteQuote(${q.id})" style="background:none;border:none;cursor:pointer;color:#888;font-size:0.85rem;padding:0.2rem 0.4rem;border-radius:2px" onmouseover="this.style.color='#8b1a1a'" onmouseout="this.style.color='#888'">✕</button>
+          <button onclick="deleteQuote(${q.id})" style="background:none;border:none;cursor:pointer;color:#111;font-size:0.85rem;padding:0.2rem 0.4rem;border-radius:2px" onmouseover="this.style.color='#8b1a1a'" onmouseout="this.style.color='#111'">✕</button>
         </td>
       </tr>`;
     }).join('');
@@ -2057,6 +2088,7 @@
   function recallQuote(id) {
     const q = quotes.find(q => q.id === id);
     if (!q) return;
+    _editingQuoteId          = id; // lock quote number from auto-update
     $('qCustomerName').value = q.customerName;
     $('qCompanyName').value  = q.companyName || '';
     $('qEmail').value        = q.email || '';
