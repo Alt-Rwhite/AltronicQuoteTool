@@ -6,7 +6,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <title>Altronic Price Tool — REV2.7</title>
+  <title>Altronic Price Tool — REV2.8</title>
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -613,7 +613,7 @@
       <button onclick="handleForgotPassword()" style="background:none;border:none;font-family:'Space Grotesk',sans-serif;font-size:0.75rem;color:#888;cursor:pointer;text-decoration:underline;text-underline-offset:2px;">Forgot password?</button>
     </div>
     <div style="text-align:center;margin-top:2rem;font-size:0.62rem;color:#bbb;letter-spacing:0.04em;">
-      This quoting tool is managed and built by Ray White &nbsp;|&nbsp; REV2.7
+      This quoting tool is managed and built by Ray White &nbsp;|&nbsp; REV2.8
     </div>
   </div>
 </div>
@@ -640,7 +640,7 @@
     </div>
     <button id="setPassBtn" onclick="handleSetPassword()" style="width:100%;background:#111;color:#fff;border:none;border-radius:2px;padding:0.8rem;font-family:'Space Mono',monospace;font-size:0.75rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;">Set Password &amp; Sign In</button>
     <div style="text-align:center;margin-top:2rem;font-size:0.62rem;color:#bbb;letter-spacing:0.04em;">
-      This quoting tool is managed and built by Ray White &nbsp;|&nbsp; REV2.7
+      This quoting tool is managed and built by Ray White &nbsp;|&nbsp; REV2.8
     </div>
   </div>
 </div>
@@ -1051,9 +1051,15 @@
       </div>
     </div>
 
+    <!-- Quoted parts editor (shown when editing an existing quote) -->
+    <div id="qPartsEditor" style="display:none;margin-bottom:1.25rem">
+      <div style="font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-bottom:0.5rem">Parts in this Quote</div>
+      <div id="qPartsList" style="border:1px solid #d0d0d0;border-radius:3px;background:#f4f4f4;"></div>
+    </div>
+
     <!-- Additional saved parts -->
     <div style="margin-bottom:1.25rem">
-      <div style="font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-bottom:0.5rem">Additional Parts (optional)</div>
+      <div id="qAdditionalLabel" style="font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-bottom:0.5rem">Additional Parts (optional)</div>
       <div id="qAdditionalParts" style="border:1px solid #d0d0d0;border-radius:3px;background:#f4f4f4;max-height:180px;overflow-y:auto;"></div>
       <div id="qNoSavedParts" style="display:none;font-size:0.75rem;color:#888;padding:0.5rem 0">No other saved parts available.</div>
     </div>
@@ -1077,6 +1083,7 @@
     <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
       <button class="btn btn-primary" onclick="generateQuotePDF(false)">↓ Download PDF</button>
       <button class="btn btn-ghost" onclick="saveQuote()">💾 Save Quote</button>
+      <button id="newRevBtn" class="btn btn-ghost" onclick="bumpRevision()" style="display:none">↑ New Revision</button>
       <button class="btn btn-ghost" onclick="closeQuoteModal()">Cancel</button>
     </div>
   </div>
@@ -1111,7 +1118,7 @@
 
 <!-- ── Site Footer ── -->
 <footer style="border-top:1px solid var(--border);background:var(--bg);padding:0.875rem 2rem;text-align:center;font-size:0.65rem;color:var(--muted);letter-spacing:0.04em;position:sticky;bottom:0;z-index:50;">
-  This quoting tool is managed and built by Ray White &mdash; ray.white [at] altronic-llc.com &nbsp;|&nbsp; <button onclick="openRevHistory()" style="background:none;border:none;cursor:pointer;font-family:inherit;font-size:inherit;font-weight:700;color:var(--text);letter-spacing:0.04em;padding:0;text-decoration:underline;text-underline-offset:2px;">REV2.7</button> &nbsp;|&nbsp; <span id="footerEmail" style="color:var(--muted)"></span>
+  This quoting tool is managed and built by Ray White &mdash; ray.white [at] altronic-llc.com &nbsp;|&nbsp; <button onclick="openRevHistory()" style="background:none;border:none;cursor:pointer;font-family:inherit;font-size:inherit;font-weight:700;color:var(--text);letter-spacing:0.04em;padding:0;text-decoration:underline;text-underline-offset:2px;">REV2.8</button> &nbsp;|&nbsp; <span id="footerEmail" style="color:var(--muted)"></span>
 </footer>
 </div><!-- end appShell -->
 
@@ -1124,8 +1131,17 @@
     </div>
     <div style="display:flex;flex-direction:column;gap:1rem;">
       <div style="border-left:3px solid #111;padding-left:1rem;">
-        <div style="font-family:'Space Mono',monospace;font-size:0.8rem;font-weight:700">REV2.7 — Current</div>
-        <div style="font-size:0.7rem;color:#888;margin-top:0.25rem;margin-bottom:0.5rem">April 10, 2026</div>
+        <div style="font-family:'Space Mono',monospace;font-size:0.8rem;font-weight:700">REV2.8 — Current</div>
+        <div style="font-size:0.7rem;color:#888;margin-top:0.25rem;margin-bottom:0.5rem">April 13, 2026</div>
+        <ul style="font-size:0.75rem;line-height:1.7;color:#444;padding-left:1.1rem;margin:0">
+          <li>Edit saved quotes — add, remove, and reorder parts</li>
+          <li>Drag handles to reorder parts in quote</li>
+          <li>Add parts list excludes parts already in the quote</li>
+        </ul>
+      </div>
+      <div style="border-left:3px solid #d0d0d0;padding-left:1rem;">
+        <div style="font-family:'Space Mono',monospace;font-size:0.8rem;font-weight:700;color:#888">REV2.7</div>
+        <div style="font-size:0.7rem;color:#aaa;margin-top:0.25rem;margin-bottom:0.5rem">April 10, 2026</div>
         <ul style="font-size:0.75rem;line-height:1.7;color:#444;padding-left:1.1rem;margin:0">
           <li>No-cache meta tags added — browser always loads latest version</li>
           <li>Page title updated to show current rev</li>
@@ -1957,7 +1973,10 @@
       return;
     }
 
-    // Populate additional parts list — exclude the current part if it's already saved
+    _editingParts = [];
+    $('qPartsEditor').style.display = 'none';
+
+    // Populate additional parts list
     const currentPartNum = $('partNum').value.trim();
     const currentCost    = parseFloat($('cost').value);
     const otherParts     = parts.filter(p =>
@@ -1966,6 +1985,8 @@
 
     const listEl  = $('qAdditionalParts');
     const emptyEl = $('qNoSavedParts');
+    const labelEl = $('qAdditionalLabel');
+    if (labelEl) labelEl.textContent = 'Additional Parts (optional)';
 
     if (otherParts.length === 0) {
       listEl.style.display  = 'none';
@@ -1986,9 +2007,9 @@
 
     updateQuoteNumber();
     _editingQuoteId = null; // fresh quote
-    $('qRev').value    = '1';   // always start at rev 1 for new quotes
-    $('qNumber').value = '';    // clear so updateQuoteNumber regenerates
-    updateQuoteNumber();        // re-run now that rev is set
+    $('qRev').value    = '1';
+    $('qNumber').value = '';
+    updateQuoteNumber();
     $('quoteModal').style.display = '';
     document.body.style.overflow = 'hidden';
   }
@@ -1996,10 +2017,133 @@
   function closeQuoteModal() {
     $('quoteModal').style.display = 'none';
     document.body.style.overflow = '';
-    _editingQuoteId = null; // reset editing state
+    _editingQuoteId = null;
+    _editingParts   = [];
+    $('qPartsEditor').style.display = 'none';
+    const btn = $('newRevBtn');
+    if (btn) btn.style.display = 'none';
   }
 
   let _editingQuoteId = null; // track if we're editing an existing quote
+  let _editingParts   = [];   // parts list when editing an existing quote
+
+  function renderQuotePartsEditor() {
+    const list = $('qPartsList');
+    if (!list) return;
+    if (_editingParts.length === 0) {
+      list.innerHTML = '<div style="padding:0.75rem 1rem;font-size:0.75rem;color:#aaa">No parts — add from the list below.</div>';
+      return;
+    }
+    list.innerHTML = _editingParts.map((p, i) => `
+      <div class="qpe-row" draggable="true" data-idx="${i}"
+        style="display:flex;align-items:center;gap:0.75rem;padding:0.6rem 0.875rem;border-bottom:1px solid #e0e0e0;cursor:grab;background:#fff;user-select:none">
+        <span style="color:#bbb;font-size:1rem;cursor:grab">⠿</span>
+        <span style="flex:1;min-width:0">
+          <span style="font-family:'Space Mono',monospace;font-size:0.78rem;font-weight:700">${esc(p.partNum||'—')}</span>
+          ${p.desc ? `<span style="color:#888;font-size:0.7rem;margin-left:0.4rem">${esc(p.desc)}</span>` : ''}
+          <span style="color:#888;font-size:0.7rem;margin-left:0.4rem">· $${p.sell.toFixed(2)}</span>
+        </span>
+        <button onclick="removeEditingPart(${i})" style="background:none;border:none;cursor:pointer;color:#111;font-size:0.85rem;padding:0.15rem 0.4rem;border-radius:2px;flex-shrink:0" onmouseover="this.style.color='#c00'" onmouseout="this.style.color='#111'">✕</button>
+      </div>`).join('');
+
+    // Wire up drag-and-drop
+    let dragIdx = null;
+    list.querySelectorAll('.qpe-row').forEach(row => {
+      row.addEventListener('dragstart', e => {
+        dragIdx = parseInt(row.dataset.idx);
+        row.style.opacity = '0.4';
+      });
+      row.addEventListener('dragend', () => { row.style.opacity = '1'; });
+      row.addEventListener('dragover', e => { e.preventDefault(); row.style.background = '#f0f0f0'; });
+      row.addEventListener('dragleave', () => { row.style.background = '#fff'; });
+      row.addEventListener('drop', e => {
+        e.preventDefault();
+        row.style.background = '#fff';
+        const dropIdx = parseInt(row.dataset.idx);
+        if (dragIdx !== null && dragIdx !== dropIdx) {
+          const moved = _editingParts.splice(dragIdx, 1)[0];
+          _editingParts.splice(dropIdx, 0, moved);
+          renderQuotePartsEditor();
+        }
+      });
+    });
+  }
+
+  function removeEditingPart(idx) {
+    _editingParts.splice(idx, 1);
+    renderQuotePartsEditor();
+    // Re-render the add parts list to show the removed part again
+    renderQuoteAddParts();
+  }
+
+  function renderQuoteAddParts() {
+    const listEl  = $('qAdditionalParts');
+    const emptyEl = $('qNoSavedParts');
+    const labelEl = $('qAdditionalLabel');
+    if (!listEl) return;
+
+    // Filter out parts already in _editingParts
+    const editingIds  = _editingParts.map(p => p.id);
+    const available   = parts.filter(p => !editingIds.includes(p.id));
+
+    if (labelEl) labelEl.textContent = _editingQuoteId ? 'Add Parts' : 'Additional Parts (optional)';
+
+    if (available.length === 0) {
+      listEl.style.display  = 'none';
+      emptyEl.style.display = '';
+    } else {
+      emptyEl.style.display = 'none';
+      listEl.style.display  = '';
+      listEl.innerHTML = available.map(p => `
+        <label style="display:flex;align-items:center;gap:0.75rem;padding:0.6rem 0.875rem;border-bottom:1px solid #e0e0e0;cursor:pointer;font-family:'Space Mono',monospace;font-size:0.78rem">
+          <input type="checkbox" data-part-id="${p.id}" style="width:14px;height:14px;accent-color:#111;cursor:pointer;flex-shrink:0" onchange="onAddPartChecked(this)" />
+          <span style="flex:1;min-width:0">
+            <span style="font-weight:700">${esc(p.partNum)}</span>
+            ${p.desc ? `<span style="color:#888;font-size:0.72rem;margin-left:0.4rem">${esc(p.desc)}</span>` : ''}
+            <span style="color:#888;font-size:0.72rem;margin-left:0.4rem">· ${fmt(p.sell)}</span>
+          </span>
+        </label>`).join('');
+    }
+  }
+
+  function onAddPartChecked(cb) {
+    if (!_editingQuoteId) return; // only in edit mode
+    if (cb.checked) {
+      const p = parts.find(p => p.id === Number(cb.dataset.partId));
+      if (p) { _editingParts.push(p); renderQuotePartsEditor(); renderQuoteAddParts(); }
+    }
+  }
+
+  function bumpRevision() {
+    const q = quotes.find(q => q.id === _editingQuoteId);
+    if (!q) return;
+
+    const currentRev = parseInt($('qRev').value || '1', 10);
+    const newRev     = currentRev + 1;
+    $('qRev').value  = String(newRev);
+
+    // Parse base and generate new number with incremented rev
+    const existingNum = $('qNumber').value || q.quoteNum || '';
+    const parts2      = existingNum.split('-');
+    const base        = parts2.length >= 3
+      ? parts2.slice(0, parts2.length - 2).join('-')
+      : parts2[0] || '';
+
+    if (base) {
+      const escaped = base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const re = new RegExp('^' + escaped + '-(\\d+)-' + newRev + '$');
+      const existingNums = quotes
+        .map(qu => qu.quoteNum ? qu.quoteNum.match(re) : null)
+        .filter(Boolean)
+        .map(m => parseInt(m[1], 10));
+      const seq = existingNums.length > 0 ? Math.max(...existingNums) + 1 : 1;
+      $('qNumber').value = `${base}-${seq}-${newRev}`;
+    }
+
+    // Hide the button so it can't be clicked again accidentally
+    const btn = $('newRevBtn');
+    if (btn) btn.style.display = 'none';
+  }
 
   function updateQuoteNumber() {
     // Don't overwrite the number when editing an existing quote
@@ -2033,6 +2177,12 @@
     const budgetary    = $('qBudgetary').checked;
     const notes        = $('qNotes').value.trim();
     const date         = new Date().toISOString();
+
+    // If editing an existing quote, use _editingParts directly
+    if (_editingQuoteId !== null) {
+      if (_editingParts.length === 0) return null;
+      return { id: Date.now(), customerName, companyName, email, validity, quoteNum, rev, budgetary, notes, date, parts: _editingParts };
+    }
 
     // Collect checked additional parts first — always, regardless of current form state
     const listEl = $('qAdditionalParts');
@@ -2122,60 +2272,23 @@
     $('qBudgetary').checked  = q.budgetary || false;
     $('qNotes').value        = q.notes || '';
 
-    // Auto-increment the rev for the new revision
-    const currentRev = parseInt(q.rev || '1', 10);
-    const newRev     = currentRev + 1;
-    $('qRev').value  = String(newRev);
+    // Keep original quote number and rev — user can click New Revision to bump
+    $('qRev').value    = q.rev || '1';
+    $('qNumber').value = q.quoteNum || '';
 
-    // Parse the existing quote number base (e.g. BOB041326 from BOB041326-2-1)
-    // and generate a new number with the incremented rev
-    const existingNum = q.quoteNum || '';
-    const parts2      = existingNum.split('-');
-    // base is everything before the last two segments (-seq-rev)
-    const base = parts2.length >= 3
-      ? parts2.slice(0, parts2.length - 2).join('-')
-      : parts2[0] || '';
+    // Show the New Revision button since this is an existing quote
+    const newRevBtn = $('newRevBtn');
+    if (newRevBtn) newRevBtn.style.display = '';
 
-    if (base) {
-      // Count existing quotes with same base and new rev
-      const escaped = base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const re = new RegExp('^' + escaped + '-(\\d+)-' + newRev + '$');
-      const existingNums = quotes
-        .map(qu => qu.quoteNum ? qu.quoteNum.match(re) : null)
-        .filter(Boolean)
-        .map(m => parseInt(m[1], 10));
-      const seq = existingNums.length > 0 ? Math.max(...existingNums) + 1 : 1;
-      $('qNumber').value = `${base}-${seq}-${newRev}`;
-    } else {
-      $('qNumber').value = existingNum;
-    }
+    // Load quote parts into editing state
+    _editingParts = q.parts ? [...q.parts] : [];
 
-    // Re-populate the additional parts list and pre-check any that were in this quote
-    const firstPartNum  = q.parts && q.parts.length > 0 ? q.parts[0].partNum : null;
-    const additionalIds = q.parts && q.parts.length > 1
-      ? q.parts.slice(1).map(p => p.id).filter(Boolean)
-      : [];
+    // Show parts editor
+    $('qPartsEditor').style.display = '';
+    renderQuotePartsEditor();
 
-    const otherParts = parts.filter(p => p.partNum !== firstPartNum);
-    const listEl  = $('qAdditionalParts');
-    const emptyEl = $('qNoSavedParts');
-
-    if (otherParts.length === 0) {
-      listEl.style.display  = 'none';
-      emptyEl.style.display = '';
-    } else {
-      emptyEl.style.display = 'none';
-      listEl.style.display  = '';
-      listEl.innerHTML = otherParts.map(p => `
-        <label style="display:flex;align-items:center;gap:0.75rem;padding:0.6rem 0.875rem;border-bottom:1px solid #e0e0e0;cursor:pointer;font-family:'Space Mono',monospace;font-size:0.78rem">
-          <input type="checkbox" data-part-id="${p.id}" ${additionalIds.includes(p.id) ? 'checked' : ''} style="width:14px;height:14px;accent-color:#111;cursor:pointer;flex-shrink:0" />
-          <span style="flex:1;min-width:0">
-            <span style="font-weight:700">${esc(p.partNum)}</span>
-            ${p.desc ? `<span style="color:#888;font-size:0.72rem;margin-left:0.4rem">${esc(p.desc)}</span>` : ''}
-            <span style="color:#888;font-size:0.72rem;margin-left:0.4rem">· ${fmt(p.sell)}</span>
-          </span>
-        </label>`).join('');
-    }
+    // Show available parts to add (excluding ones already in the quote)
+    renderQuoteAddParts();
 
     $('quoteModal').style.display = '';
     document.body.style.overflow = 'hidden';
